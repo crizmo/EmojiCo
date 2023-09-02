@@ -1,6 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Grid, List, ListItem, Typography } from '@mui/material';
 import { styled } from '@mui/system';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseKey = import.meta.env.VITE_SUPABASE_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 const RootContainer = styled('div')({
   textAlign: 'center',
@@ -25,11 +30,58 @@ const CopyMessage = styled('div')({
 
 const EmojiByType = ({ emojis }) => {
   const [copiedEmoji, setCopiedEmoji] = useState(null);
+  const [copyCounts, setCopyCounts] = useState({});
 
-  const handleCopy = (emoji) => {
-    navigator.clipboard.writeText(emoji.emoji);
-    setCopiedEmoji(emoji);
-  };
+  useEffect(() => {
+    // Fetch copy counts from Supabase when the component mounts
+    const fetchCopyCounts = async () => {
+      try {
+        const { data, error } = await supabase.from('emojis').select('name, copy_count');
+        if (error) {
+          throw error;
+        }
+        const counts = {};
+        data.forEach((emoji) => {
+          counts[emoji.name] = emoji.copy_count;
+        });
+        setCopyCounts(counts);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchCopyCounts();
+  }, []);
+
+  const handleCopy = async (emoji) => {
+    try {
+      navigator.clipboard.writeText(emoji.emoji);
+      setCopiedEmoji(emoji);
+  
+      // Update the copy count in Supabase
+      const updatedCopyCount = (copyCounts[emoji.name] || 0) + 1;
+  
+      // Send an upsert request to Supabase and wait for the response
+      const { data, error } = await supabase.from('emojis').upsert([
+        {
+          name: emoji.name,
+          copy_count: updatedCopyCount,
+        },
+      ]);
+  
+      if (error) {
+        throw error;
+      }
+  
+      // Update the local copy count
+      setCopyCounts((prevCounts) => ({
+        ...prevCounts,
+        [emoji.name]: updatedCopyCount,
+      }));
+    } catch (error) {
+      console.error(error);
+    }
+  };  
 
   return (
     <RootContainer>
@@ -60,6 +112,13 @@ const EmojiByType = ({ emojis }) => {
                 {emoji.name}
               </Typography>
             </ListItem>
+            <Typography
+              variant="caption"
+              component="span"
+              sx={{ color: '#fff', display: 'block', textAlign: 'right' }}
+            >
+              {copyCounts[emoji.name] || 0} copied
+            </Typography>
           </Grid>
         ))}
       </Grid>
