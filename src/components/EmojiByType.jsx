@@ -36,9 +36,9 @@ const GithubEmojiContainer = styled('div')({
   borderRadius: '8px',
   padding: '8px',
   display: 'flex',
-  flexDirection: 'column', // Stack items vertically
-  alignItems: 'center', // Center horizontally
-  cursor: 'pointer', // Optional: add a pointer cursor when hovering
+  flexDirection: 'column',
+  alignItems: 'center',
+  cursor: 'pointer',
 });
 
 const EmojiByType = ({ emojis }) => {
@@ -99,7 +99,7 @@ const EmojiByType = ({ emojis }) => {
   return (
     <RootContainer>
       <Typography variant="h4" component="h1" gutterBottom sx={{ color: '#7289da' }}>
-        Git Commit Emoji
+        Introducing a 🆕 Way to Commit
       </Typography>
       {copiedEmoji && (
         <CopyMessage>
