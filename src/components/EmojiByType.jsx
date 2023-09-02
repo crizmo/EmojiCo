@@ -138,7 +138,7 @@ const EmojiByType = ({ emojis }) => {
       <GithubEmojiContainer>
         <div>
           <Link
-            href="https://github.com/crizmo/EmoGit"
+            href="https://github.com/crizmo/EmojiCo"
             target="_blank"
             rel="noopener"
           >
