@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Grid, List, ListItem, Typography } from '@mui/material';
+import { Grid, List, ListItem, Typography, Link } from '@mui/material';
 import { styled } from '@mui/system';
 import { createClient } from '@supabase/supabase-js';
 
@@ -26,6 +26,19 @@ const CopyMessage = styled('div')({
   backgroundColor: '#f5f5f5',
   color: '#555555',
   fontWeight: 'bold',
+});
+
+const GithubEmojiContainer = styled('div')({
+  position: 'absolute',
+  top: '16px',
+  right: '16px',
+  backgroundColor: '#36393e',
+  borderRadius: '8px',
+  padding: '8px',
+  display: 'flex',
+  flexDirection: 'column', // Stack items vertically
+  alignItems: 'center', // Center horizontally
+  cursor: 'pointer', // Optional: add a pointer cursor when hovering
 });
 
 const EmojiByType = ({ emojis }) => {
@@ -57,10 +70,10 @@ const EmojiByType = ({ emojis }) => {
     try {
       navigator.clipboard.writeText(emoji.emoji);
       setCopiedEmoji(emoji);
-  
+
       // Update the copy count in Supabase
       const updatedCopyCount = (copyCounts[emoji.name] || 0) + 1;
-  
+
       // Send an upsert request to Supabase and wait for the response
       const { data, error } = await supabase.from('emojis').upsert([
         {
@@ -68,11 +81,11 @@ const EmojiByType = ({ emojis }) => {
           copy_count: updatedCopyCount,
         },
       ]);
-  
+
       if (error) {
         throw error;
       }
-  
+
       // Update the local copy count
       setCopyCounts((prevCounts) => ({
         ...prevCounts,
@@ -81,7 +94,7 @@ const EmojiByType = ({ emojis }) => {
     } catch (error) {
       console.error(error);
     }
-  };  
+  };
 
   return (
     <RootContainer>
@@ -122,6 +135,26 @@ const EmojiByType = ({ emojis }) => {
           </Grid>
         ))}
       </Grid>
+      <GithubEmojiContainer>
+        <div>
+          <Link
+            href="https://github.com/crizmo/EmoGit"
+            target="_blank"
+            rel="noopener"
+          >
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/GitHub_Invertocat_Logo.svg/800px-GitHub_Invertocat_Logo.svg.png" alt="github" width="20" height="20" />
+          </Link>
+        </div>
+        <div style={{ marginTop: '5px'}}>
+          <Link 
+            href="https://kurizu.vercel.app/"
+            target="_blank"
+            rel="noopener"
+          >
+            <img src="https://avatars.githubusercontent.com/u/83665497?v=4" alt="github" width="20" height="20" style={{ borderRadius: '50%' }} />
+          </Link>
+        </div>
+      </GithubEmojiContainer>
     </RootContainer>
   );
 };
